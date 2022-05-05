@@ -1,0 +1,10 @@
+name: todo-app
+version: 1.6.0.10
+
+dependencies:
+  - base
+
+executables:
+  main:
+    main: Main.hs
+    source-dirs: app

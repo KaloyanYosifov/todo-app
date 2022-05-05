@@ -1,5 +1,6 @@
 module Main where
-import           Text.Printf (printf)
+import           Control.Monad (unless)
+import           Text.Printf   (printf)
 
 mapWithIndex :: (Int -> a -> b) -> [a] -> [b]
 mapWithIndex = mapWithIndex' 0
@@ -9,11 +10,22 @@ mapWithIndex = mapWithIndex' 0
 tasks :: String -> String
 tasks = unlines . mapWithIndex (printf "[%i] %s") . lines
 
-main :: IO ()
-main = do
+addTaskFlow :: IO ()
+addTaskFlow = do
     text <- readFile "./todos.txt"
     putStrLn $ tasks text
     putStrLn "Add new task"
     task <- getLine
     writeFile "./todos.txt" $ text ++ task ++ "\n"
-    return ()
+    main
+
+main :: IO ()
+main = do
+    putStrLn "Pick commands"
+    putStrLn "- Type \"exit\" to exit the program"
+    putStrLn "- Type \"add\" to add a new task"
+    command <- getLine
+    case command of
+      "exit" -> return ()
+      "add"  -> addTaskFlow
+      _      -> main

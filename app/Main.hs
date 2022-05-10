@@ -14,7 +14,9 @@ tasks = unlines . mapWithIndex (printf "[%i] %s") . lines
 
 printAndWaitForAction :: String -> IO ()
 printAndWaitForAction text = do
+    putStrLn "\n\n----------------------------------\n\n"
     putStrLn text
+    putStrLn "Press enter to continue"
     getChar
     return ()
 
@@ -29,9 +31,11 @@ deleteTaskFlow = do
             let tasksList = lines text
             if x < 0 || x >= length tasksList
                 then
-                    printAndWaitForAction "Invalid task Id! Press enter to continue"
+                    printAndWaitForAction "Invalid task Id!"
                 else
+                    do
                     writeFile "./todos.txt" $ unlines $ delete (tasksList !! x) tasksList
+                    printAndWaitForAction "Sucessfully deleted task!"
 
             main
 
@@ -44,6 +48,7 @@ addTaskFlow = do
     putStrLn "Add new task"
     task <- getLine
     writeFile "./todos.txt" $ text ++ task ++ "\n"
+    printAndWaitForAction "Sucessfully added a task!"
     main
 
 main :: IO ()

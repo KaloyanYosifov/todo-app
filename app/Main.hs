@@ -1,8 +1,7 @@
 module Main where
-import           Control.Monad (unless)
-import           Data.List     (delete)
-import           Text.Printf   (printf)
-import           Text.Read     (readMaybe)
+import           Data.List   (delete)
+import           Text.Printf (printf)
+import           Text.Read   (readMaybe)
 
 mapWithIndex :: (Int -> a -> b) -> [a] -> [b]
 mapWithIndex = mapWithIndex' 0
@@ -14,6 +13,9 @@ tasks = unlines . mapWithIndex (printf "[%i] %s") . lines
 
 printSeparator :: IO ()
 printSeparator =   putStrLn "\n----------------------------------\n"
+
+isInRange :: Int -> [String] -> Bool
+isInRange index xs = index >= 0 && index < length xs
 
 printAndWaitForAction :: String -> IO ()
 printAndWaitForAction text = do
@@ -34,7 +36,7 @@ deleteTaskFlow = do
     case readMaybe taskId :: Maybe Int of
       Just x -> do
             let tasksList = lines text
-            if x < 0 || x >= length tasksList
+            if not $ isInRange x tasksList
                 then
                     printAndWaitForAction "Invalid task Id!"
                 else
@@ -45,6 +47,31 @@ deleteTaskFlow = do
             main
 
       Nothing -> main
+
+editTaskFlow :: IO ()
+editTaskFlow = do
+    text <- readFile "./todos.txt"
+    printSeparator
+    putStrLn $ tasks text
+    printSeparator
+    putStrLn "Pick a task to edit"
+    taskId <- getLine
+    case readMaybe taskId :: Maybe Int of
+      Just x -> do
+            let tasksList = lines text
+            if not $ isInRange x tasksList
+                then
+                    printAndWaitForAction "Invalid task Id!"
+                else
+                    do
+                    putStrLn "Start typing..."
+                    editedTask <- getLine
+                    writeFile "./todos.txt" $ unlines $ mapWithIndex (\index todo -> if index == x then editedTask else todo) tasksList
+
+            main
+
+      Nothing -> main
+    main
 
 addTaskFlow :: IO ()
 addTaskFlow = do
@@ -63,10 +90,12 @@ main = do
     putStrLn "Pick commands"
     putStrLn "- Type \"exit\" to exit the program"
     putStrLn "- Type \"add\" to add a new task"
+    putStrLn "- Type \"edit\" to edit a task"
     putStrLn "- Type \"delete\" to add a new task"
     command <- getLine
     case command of
       "exit"   -> return ()
       "add"    -> addTaskFlow
+      "edit"   -> editTaskFlow
       "delete" -> deleteTaskFlow
       _        -> main

@@ -12,9 +12,12 @@ mapWithIndex = mapWithIndex' 0
 tasks :: String -> String
 tasks = unlines . mapWithIndex (printf "[%i] %s") . lines
 
+printSeparator :: IO ()
+printSeparator =   putStrLn "\n----------------------------------\n"
+
 printAndWaitForAction :: String -> IO ()
 printAndWaitForAction text = do
-    putStrLn "\n\n----------------------------------\n\n"
+    printSeparator
     putStrLn text
     putStrLn "Press enter to continue"
     getChar
@@ -23,7 +26,9 @@ printAndWaitForAction text = do
 deleteTaskFlow :: IO ()
 deleteTaskFlow = do
     text <- readFile "./todos.txt"
+    printSeparator
     putStrLn $ tasks text
+    printSeparator
     putStrLn "Pick a task to delete"
     taskId <- getLine
     case readMaybe taskId :: Maybe Int of
@@ -44,7 +49,9 @@ deleteTaskFlow = do
 addTaskFlow :: IO ()
 addTaskFlow = do
     text <- readFile "./todos.txt"
+    printSeparator
     putStrLn $ tasks text
+    printSeparator
     putStrLn "Add new task"
     task <- getLine
     writeFile "./todos.txt" $ text ++ task ++ "\n"

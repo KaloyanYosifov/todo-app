@@ -12,6 +12,12 @@ mapWithIndex = mapWithIndex' 0
 tasks :: String -> String
 tasks = unlines . mapWithIndex (printf "[%i] %s") . lines
 
+printAndWaitForAction :: String -> IO ()
+printAndWaitForAction text = do
+    putStrLn text
+    getChar
+    return ()
+
 deleteTaskFlow :: IO ()
 deleteTaskFlow = do
     text <- readFile "./todos.txt"
@@ -23,10 +29,7 @@ deleteTaskFlow = do
             let tasksList = lines text
             if x < 0 || x >= length tasksList
                 then
-                    do
-                    putStrLn "Invalid task Id! Press enter to continue"
-                    getChar
-                    return ()
+                    printAndWaitForAction "Invalid task Id! Press enter to continue"
                 else
                     writeFile "./todos.txt" $ unlines $ delete (tasksList !! x) tasksList
 
